@@ -54,12 +54,12 @@ func editIP(ipEdit InputOctet, interfaceName string) string {
 
 func main() {
 	octet3 = flag.String("ip", "172.28.1.1/25", "Insert ip of this machine")
-	gateway = flag.String("gateway", "172.28.10.1", "Insert gateway")
+	gateway = flag.String("gateway", "172.28.10.254", "Insert gateway")
 	interfaceName = flag.String("interface", "ens18", "Interface name")
 
 	flag.Parse()
-	path := "netconfig.yml"
-	write_file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	path := "/etc/netplan/50-cloud-init.yaml"
+	write_file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0755)
 	if err != nil {
 		fmt.Println("error pak le", err.Error())
 	}
@@ -71,7 +71,8 @@ func main() {
 		write_file.WriteString(result)
 		fmt.Println("Success write to file")
 		cmd := exec.Command("sudo", "netplan", "apply")
-		err := cmd.Run()
+		cmd.Stdout = os.Stdout
+		cmd.Run()
 		if err != nil {
 			fmt.Println("Error while applying command")
 		} else {
